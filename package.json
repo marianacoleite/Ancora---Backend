@@ -1,0 +1,28 @@
+{
+  "name": "ancora-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend Ancora — tipos e integração Firestore alinhados ao cliente",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:firestore": "npx --yes firebase-tools emulators:exec --only firestore --project demo-ancora-test \"npm run test\"",
+    "seed": "npm run build && node dist/scripts/seedWorkspace.js",
+    "seed:emulator": "npx --yes firebase-tools emulators:exec --only firestore --project demo-ancora-test \"npm run seed\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "dotenv": "^16.4.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
