@@ -1,6 +1,4 @@
-import type { Timestamp } from "firebase-admin/firestore";
-
-/** Estado da tarefa no Firestore e no domínio. */
+/** Estado da tarefa no Postgres (enum `task_status`) e no domínio. */
 export type TaskStatus = "pending" | "in_progress" | "done";
 
 export interface Workspace {
@@ -8,7 +6,7 @@ export interface Workspace {
   name: string;
   userId: string;
   order: number;
-  createdAt: Timestamp;
+  createdAt: number;
 }
 
 export interface Subspace {
@@ -17,7 +15,7 @@ export interface Subspace {
   userId: string;
   name: string;
   order: number;
-  createdAt: Timestamp;
+  createdAt: number;
 }
 
 export interface Section {
@@ -27,7 +25,7 @@ export interface Section {
   userId: string;
   name: string;
   order: number;
-  createdAt: Timestamp;
+  createdAt: number;
 }
 
 export interface Task {
@@ -40,9 +38,9 @@ export interface Task {
   status: TaskStatus;
   tags: string[];
   assigneeName: string | null;
-  dueDate: Timestamp | null;
+  dueDate: string | null;
   order: number;
-  createdAt: Timestamp;
+  createdAt: number;
 }
 
 /** Snapshot agregado do app (útil para import/export ou cache). */

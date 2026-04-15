@@ -1,4 +1,3 @@
-export * from "./config/firebase.js";
-export * from "./services/firestoreAdmin.js";
-export * from "./types/firestore.js";
+export * from "./config/supabase.js";
+export * from "./types/database.js";
 export * from "./types/models.js";

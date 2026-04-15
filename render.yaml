@@ -12,7 +12,7 @@ services:
         value: "20"
       - key: CORS_ORIGIN
         value: https://ancora-frontend.vercel.app
-      - key: FIREBASE_PROJECT_ID
+      - key: SUPABASE_URL
         sync: false
-      - key: FIREBASE_SERVICE_ACCOUNT
+      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false

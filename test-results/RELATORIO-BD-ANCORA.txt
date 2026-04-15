@@ -1,0 +1,38 @@
+================================================================================
+RELATÓRIO — Testes de base de dados (Ancora Backend)
+Data: 2026-04-14
+================================================================================
+
+RESUMO
+------
+- database-converters.test.ts: 4 testes PASSARAM (conversões modelo <-> linha SQL).
+- supabase-connection.test.ts: 1 teste IGNORADO (precisa SUPABASE_URL + SERVICE_ROLE).
+- supabase.integration.test.ts: 1 teste IGNORADO (precisa credenciais + ANCORA_SEED_USER_ID).
+
+MOTIVO DOS SKIPS
+----------------
+No ficheiro .env do projeto, SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY estão vazios.
+Sem isso, o Vitest não executa os testes que falam com o Postgres (Supabase).
+
+COMO REPETIR COM LIGAÇÃO REAL AO BANCO
+---------------------------------------
+1. Preencher no .env (ver .env.example):
+   - SUPABASE_URL
+   - SUPABASE_SERVICE_ROLE_KEY
+2. Para o teste de integração (insert/delete de workspace):
+   - ANCORA_SEED_USER_ID = UUID de um utilizador em auth.users (dashboard Supabase).
+3. Garantir que a migração SQL foi aplicada ao projeto (tabela ancora_workspaces, etc.).
+4. Correr:
+   npm run test:supabase
+   npm test
+
+FICHEIROS GUARDADOS NESTA PASTA
+--------------------------------
+- vitest-output.txt — saída bruta do último `npm test`
+
+SUPABASE — HISTÓRICO NO BANCO
+------------------------------
+- Tabela: public.ancora_backend_test_runs (migração 20260414183000_ancora_backend_test_runs.sql).
+- Comando: npm run test:record — corre o Vitest e insere uma linha com sucesso/resumo/saída (truncada).
+
+================================================================================
