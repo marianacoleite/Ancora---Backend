@@ -1,0 +1,259 @@
+{
+  "info": {
+    "name": "Ancora Backend API",
+    "_postman_id": "a3e6f6cb-6ce1-4f3d-9b59-ancora-backend-api",
+    "description": "Colecao para testar os endpoints do Ancora Backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "email", "value": "user@example.com" },
+    { "key": "password", "value": "123456" },
+    { "key": "token", "value": "" },
+    { "key": "workspaceId", "value": "" },
+    { "key": "subspaceId", "value": "" },
+    { "key": "sectionId", "value": "" },
+    { "key": "taskId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /",
+          "request": { "method": "GET", "url": "{{baseUrl}}/" }
+        },
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        },
+        {
+          "name": "GET /health/supabase",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health/supabase" }
+        },
+        {
+          "name": "GET /health/db",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health/db" }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/auth/login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/auth/me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/auth/me"
+          }
+        },
+        {
+          "name": "POST /api/v1/auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "App Data",
+      "item": [
+        {
+          "name": "GET /api/v1/app-data",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/app-data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "POST /api/v1/workspaces",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/workspaces",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Workspace A\",\n  \"order\": 0\n}" }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/workspaces/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/workspaces/{{workspaceId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Workspace Renomeado\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE /api/v1/workspaces/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/workspaces/{{workspaceId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subspaces",
+      "item": [
+        {
+          "name": "POST /api/v1/subspaces",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/subspaces",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"name\": \"Subspace A\",\n  \"order\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/subspaces/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/subspaces/{{subspaceId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Subspace Renomeado\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE /api/v1/subspaces/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/subspaces/{{subspaceId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sections",
+      "item": [
+        {
+          "name": "POST /api/v1/sections",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/sections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"subspaceId\": \"{{subspaceId}}\",\n  \"name\": \"Secao A\",\n  \"order\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/sections/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/sections/{{sectionId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Secao Renomeada\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE /api/v1/sections/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/sections/{{sectionId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "POST /api/v1/tasks",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/tasks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"subspaceId\": \"{{subspaceId}}\",\n  \"sectionId\": \"{{sectionId}}\",\n  \"title\": \"Nova tarefa\",\n  \"status\": \"pending\",\n  \"tags\": [\"frontend\", \"api\"],\n  \"assigneeName\": \"Maria\",\n  \"dueDate\": \"2026-04-30T18:00:00.000Z\",\n  \"order\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/tasks/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"order\": 1,\n  \"tags\": [\"prioridade\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/v1/tasks/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/v1/tasks/{{taskId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

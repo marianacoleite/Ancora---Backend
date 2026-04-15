@@ -1,6 +1,10 @@
 import "dotenv/config";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import fs from "node:fs";
+import path from "node:path";
+import swaggerUi from "swagger-ui-express";
+import yaml from "js-yaml";
 
 import { getSupabaseAdmin } from "./config/supabase.js";
 import {
@@ -22,25 +26,61 @@ const app = express();
 
 app.use(express.json());
 
-const corsOrigins = (process.env.CORS_ORIGIN || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+function loadOpenApiSpec(): Record<string, unknown> {
+  const openApiPath = path.resolve(process.cwd(), "contracts", "openapi.yaml");
+  const fileContent = fs.readFileSync(openApiPath, "utf8");
+  const parsed = yaml.load(fileContent);
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Arquivo OpenAPI inválido.");
+  }
+  return parsed as Record<string, unknown>;
+}
+
+const openApiSpec = loadOpenApiSpec();
+
+function normalizeOrigin(value: string | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim().replace(/\/+$/, "");
+  return trimmed || null;
+}
+
+/** Origens permitidas: CORS_ORIGIN + FRONTEND_URL + FRONTEND_LOCAL_URL (sem duplicar). */
+function collectCorsOrigins(): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (o: string | null): void => {
+    if (!o || seen.has(o)) return;
+    seen.add(o);
+    out.push(o);
+  };
+  for (const part of (process.env.CORS_ORIGIN || "").split(",")) {
+    push(normalizeOrigin(part));
+  }
+  push(normalizeOrigin(process.env.FRONTEND_URL));
+  push(normalizeOrigin(process.env.FRONTEND_LOCAL_URL));
+  return out;
+}
+
+const corsOrigins = collectCorsOrigins();
 if (corsOrigins.length > 0) {
   app.use((req, res, next) => {
     const requestOrigin = req.header("origin");
-    const matchedOrigin =
-      requestOrigin && corsOrigins.includes(requestOrigin) ? requestOrigin : corsOrigins[0];
-    res.setHeader("Access-Control-Allow-Origin", matchedOrigin);
-    res.setHeader("Vary", "Origin");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Accept"
-    );
+    const allowed =
+      requestOrigin && corsOrigins.includes(requestOrigin) ? requestOrigin : null;
+
+    if (allowed) {
+      res.setHeader("Access-Control-Allow-Origin", allowed);
+      res.setHeader("Vary", "Origin");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, Accept"
+      );
+    }
+
     if (req.method === "OPTIONS") {
       res.sendStatus(204);
       return;
@@ -56,6 +96,12 @@ app.get("/", (_req, res) => {
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
+
+app.get("/docs/openapi.json", (_req, res) => {
+  res.status(200).json(openApiSpec);
+});
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
 type AuthRequest = Request & { userId?: string };
 const STATUS_VALUES: TaskStatus[] = ["pending", "in_progress", "done"];

@@ -1,0 +1,524 @@
+{
+  "name": "ancora-frontend-api-contract",
+  "version": "1.0.0",
+  "baseUrl": "http://localhost:3000",
+  "openApiSource": "/docs/openapi.json",
+  "defaultHeaders": {
+    "Content-Type": "application/json"
+  },
+  "auth": {
+    "type": "bearer",
+    "header": "Authorization",
+    "format": "Bearer <token>",
+    "loginEndpoint": "POST /api/v1/auth/login",
+    "registerEndpoint": "POST /api/v1/auth/register",
+    "sessionValidationEndpoint": "GET /api/v1/auth/me"
+  },
+  "models": {
+    "TaskStatus": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "done"]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": ["message"],
+      "properties": {
+        "message": "string"
+      }
+    },
+    "User": {
+      "type": "object",
+      "required": ["id", "email"],
+      "properties": {
+        "id": "string",
+        "email": "string"
+      }
+    },
+    "AuthSuccessResponse": {
+      "type": "object",
+      "required": ["token", "user"],
+      "properties": {
+        "token": "string",
+        "user": "User"
+      }
+    },
+    "Workspace": {
+      "type": "object",
+      "required": ["id", "name", "userId", "order", "createdAt"],
+      "properties": {
+        "id": "string",
+        "name": "string",
+        "userId": "string",
+        "order": "number",
+        "createdAt": "number"
+      }
+    },
+    "Subspace": {
+      "type": "object",
+      "required": ["id", "workspaceId", "name", "userId", "order", "createdAt"],
+      "properties": {
+        "id": "string",
+        "workspaceId": "string",
+        "name": "string",
+        "userId": "string",
+        "order": "number",
+        "createdAt": "number"
+      }
+    },
+    "Section": {
+      "type": "object",
+      "required": ["id", "workspaceId", "subspaceId", "name", "userId", "order", "createdAt"],
+      "properties": {
+        "id": "string",
+        "workspaceId": "string",
+        "subspaceId": "string",
+        "name": "string",
+        "userId": "string",
+        "order": "number",
+        "createdAt": "number"
+      }
+    },
+    "Task": {
+      "type": "object",
+      "required": [
+        "id",
+        "workspaceId",
+        "subspaceId",
+        "sectionId",
+        "title",
+        "status",
+        "tags",
+        "order",
+        "userId",
+        "createdAt"
+      ],
+      "properties": {
+        "id": "string",
+        "workspaceId": "string",
+        "subspaceId": "string",
+        "sectionId": "string",
+        "title": "string",
+        "status": "TaskStatus",
+        "tags": "string[]",
+        "assigneeName": "string | null",
+        "dueDate": "string | null",
+        "order": "number",
+        "userId": "string",
+        "createdAt": "number"
+      }
+    },
+    "AppData": {
+      "type": "object",
+      "required": ["workspaces", "subspaces", "sections", "tasks"],
+      "properties": {
+        "workspaces": "Workspace[]",
+        "subspaces": "Subspace[]",
+        "sections": "Section[]",
+        "tasks": "Task[]"
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "operationId": "rootStatus",
+      "tag": "Health",
+      "method": "GET",
+      "path": "/",
+      "requiresAuth": false,
+      "request": null,
+      "responses": {
+        "200": {
+          "type": "{ ok: boolean; service: string }",
+          "example": { "ok": true, "service": "ancora-backend" }
+        }
+      }
+    },
+    {
+      "operationId": "healthStatus",
+      "tag": "Health",
+      "method": "GET",
+      "path": "/health",
+      "requiresAuth": false,
+      "request": null,
+      "responses": {
+        "200": {
+          "type": "{ status: string }",
+          "example": { "status": "ok" }
+        }
+      }
+    },
+    {
+      "operationId": "authLogin",
+      "tag": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "requiresAuth": false,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "email": "string",
+          "password": "string"
+        },
+        "bodyRequired": ["email", "password"],
+        "example": {
+          "email": "user@example.com",
+          "password": "123456"
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "AuthSuccessResponse",
+          "example": {
+            "token": "jwt_token",
+            "user": { "id": "uuid", "email": "user@example.com" }
+          }
+        },
+        "401": { "type": "ErrorResponse", "example": { "message": "Credenciais inválidas." } }
+      }
+    },
+    {
+      "operationId": "authRegister",
+      "tag": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "requiresAuth": false,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "email": "string",
+          "password": "string"
+        },
+        "bodyRequired": ["email", "password"],
+        "example": {
+          "email": "user@example.com",
+          "password": "123456"
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "AuthSuccessResponse",
+          "example": {
+            "token": "jwt_token",
+            "user": { "id": "uuid", "email": "user@example.com" }
+          }
+        },
+        "400": { "type": "ErrorResponse", "example": { "message": "Falha ao criar usuario." } }
+      }
+    },
+    {
+      "operationId": "authMe",
+      "tag": "Auth",
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "200": {
+          "type": "{ user: User }",
+          "example": { "user": { "id": "uuid", "email": "user@example.com" } }
+        },
+        "401": { "type": "ErrorResponse", "example": { "message": "Token inválido." } }
+      }
+    },
+    {
+      "operationId": "authLogout",
+      "tag": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "204": {
+          "type": "void",
+          "example": null
+        }
+      }
+    },
+    {
+      "operationId": "getAppData",
+      "tag": "App Data",
+      "method": "GET",
+      "path": "/api/v1/app-data",
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "200": {
+          "type": "AppData",
+          "example": {
+            "workspaces": [],
+            "subspaces": [],
+            "sections": [],
+            "tasks": []
+          }
+        }
+      }
+    },
+    {
+      "operationId": "createWorkspace",
+      "tag": "Workspaces",
+      "method": "POST",
+      "path": "/api/v1/workspaces",
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "name": "string",
+          "order": "number"
+        },
+        "bodyRequired": ["name", "order"],
+        "example": {
+          "name": "Workspace A",
+          "order": 0
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "Workspace"
+        },
+        "400": {
+          "type": "ErrorResponse"
+        }
+      }
+    },
+    {
+      "operationId": "updateWorkspace",
+      "tag": "Workspaces",
+      "method": "PATCH",
+      "path": "/api/v1/workspaces/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": { "name": "string" },
+        "bodyRequired": ["name"],
+        "example": { "name": "Workspace Renomeado" }
+      },
+      "responses": {
+        "200": { "type": "Workspace" },
+        "404": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "deleteWorkspace",
+      "tag": "Workspaces",
+      "method": "DELETE",
+      "path": "/api/v1/workspaces/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "204": { "type": "void", "example": null }
+      }
+    },
+    {
+      "operationId": "createSubspace",
+      "tag": "Subspaces",
+      "method": "POST",
+      "path": "/api/v1/subspaces",
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "workspaceId": "string",
+          "name": "string",
+          "order": "number"
+        },
+        "bodyRequired": ["workspaceId", "name", "order"],
+        "example": {
+          "workspaceId": "workspace_uuid",
+          "name": "Subspace A",
+          "order": 0
+        }
+      },
+      "responses": {
+        "200": { "type": "Subspace" },
+        "400": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "updateSubspace",
+      "tag": "Subspaces",
+      "method": "PATCH",
+      "path": "/api/v1/subspaces/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": { "name": "string" },
+        "bodyRequired": ["name"],
+        "example": { "name": "Subspace Renomeado" }
+      },
+      "responses": {
+        "200": { "type": "Subspace" },
+        "404": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "deleteSubspace",
+      "tag": "Subspaces",
+      "method": "DELETE",
+      "path": "/api/v1/subspaces/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "204": { "type": "void", "example": null }
+      }
+    },
+    {
+      "operationId": "createSection",
+      "tag": "Sections",
+      "method": "POST",
+      "path": "/api/v1/sections",
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "workspaceId": "string",
+          "subspaceId": "string",
+          "name": "string",
+          "order": "number"
+        },
+        "bodyRequired": ["workspaceId", "subspaceId", "name", "order"],
+        "example": {
+          "workspaceId": "workspace_uuid",
+          "subspaceId": "subspace_uuid",
+          "name": "Secao A",
+          "order": 0
+        }
+      },
+      "responses": {
+        "200": { "type": "Section" },
+        "400": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "updateSection",
+      "tag": "Sections",
+      "method": "PATCH",
+      "path": "/api/v1/sections/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": { "name": "string" },
+        "bodyRequired": ["name"],
+        "example": { "name": "Secao Renomeada" }
+      },
+      "responses": {
+        "200": { "type": "Section" },
+        "404": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "deleteSection",
+      "tag": "Sections",
+      "method": "DELETE",
+      "path": "/api/v1/sections/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "204": { "type": "void", "example": null }
+      }
+    },
+    {
+      "operationId": "createTask",
+      "tag": "Tasks",
+      "method": "POST",
+      "path": "/api/v1/tasks",
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "workspaceId": "string",
+          "subspaceId": "string",
+          "sectionId": "string",
+          "title": "string",
+          "status": "TaskStatus",
+          "tags": "string[]",
+          "assigneeName": "string | null",
+          "dueDate": "string | null",
+          "order": "number"
+        },
+        "bodyRequired": ["workspaceId", "subspaceId", "sectionId", "title", "status", "tags", "order"],
+        "example": {
+          "workspaceId": "workspace_uuid",
+          "subspaceId": "subspace_uuid",
+          "sectionId": "section_uuid",
+          "title": "Nova tarefa",
+          "status": "pending",
+          "tags": ["frontend", "api"],
+          "assigneeName": "Maria",
+          "dueDate": "2026-04-30T18:00:00.000Z",
+          "order": 0
+        }
+      },
+      "responses": {
+        "200": { "type": "Task" },
+        "400": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "updateTask",
+      "tag": "Tasks",
+      "method": "PATCH",
+      "path": "/api/v1/tasks/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": {
+        "bodyType": "application/json",
+        "bodySchema": {
+          "title": "string",
+          "status": "TaskStatus",
+          "tags": "string[]",
+          "assigneeName": "string | null",
+          "dueDate": "string | null",
+          "order": "number",
+          "sectionId": "string",
+          "subspaceId": "string",
+          "workspaceId": "string"
+        },
+        "bodyRequired": [],
+        "example": {
+          "status": "in_progress",
+          "order": 1,
+          "tags": ["prioridade"]
+        }
+      },
+      "responses": {
+        "200": { "type": "Task" },
+        "400": { "type": "ErrorResponse" },
+        "404": { "type": "ErrorResponse" }
+      }
+    },
+    {
+      "operationId": "deleteTask",
+      "tag": "Tasks",
+      "method": "DELETE",
+      "path": "/api/v1/tasks/:id",
+      "pathParams": { "id": "string" },
+      "requiresAuth": true,
+      "request": null,
+      "responses": {
+        "204": { "type": "void", "example": null }
+      }
+    }
+  ],
+  "frontendUsage": {
+    "tokenStorageSuggestion": "Salvar token em memory + storage local seguro.",
+    "bootSequence": [
+      "Ler token salvo",
+      "Se houver token, chamar GET /api/v1/auth/me",
+      "Se 200, chamar GET /api/v1/app-data",
+      "Se 401, limpar token e redirecionar para login"
+    ],
+    "errorHandling": {
+      "defaultErrorBody": { "message": "string" },
+      "retrySuggestion": {
+        "5xx": "Pode aplicar retry com backoff curto.",
+        "4xx": "Nao repetir automaticamente; revisar payload/sessao."
+      }
+    }
+  }
+}

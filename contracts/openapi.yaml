@@ -1,0 +1,574 @@
+openapi: 3.0.3
+info:
+  title: Ancora Backend API
+  version: 1.0.0
+  description: Documentacao da API REST do backend Ancora.
+servers:
+  - url: http://localhost:3000
+    description: Ambiente local
+tags:
+  - name: Health
+  - name: Auth
+  - name: App Data
+  - name: Workspaces
+  - name: Subspaces
+  - name: Sections
+  - name: Tasks
+paths:
+  /:
+    get:
+      tags: [Health]
+      summary: Status basico do servico
+      responses:
+        "200":
+          description: Servico disponivel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  service:
+                    type: string
+  /health:
+    get:
+      tags: [Health]
+      summary: Healthcheck HTTP
+      responses:
+        "200":
+          description: Aplicacao saudavel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login com email e password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login realizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "401":
+          description: Credenciais invalidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Criacao de usuario e login imediato
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Usuario criado e autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "400":
+          description: Falha ao criar usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Dados do usuario autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuario atual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Token ausente ou invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout logico da sessao
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Logout concluido
+  /api/v1/app-data:
+    get:
+      tags: [App Data]
+      summary: Snapshot completo dos dados do usuario
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dados completos do app
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppData"
+  /api/v1/workspaces:
+    post:
+      tags: [Workspaces]
+      summary: Cria workspace
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkspaceBody"
+      responses:
+        "200":
+          description: Workspace criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+  /api/v1/workspaces/{id}:
+    patch:
+      tags: [Workspaces]
+      summary: Atualiza nome do workspace
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchNameBody"
+      responses:
+        "200":
+          description: Workspace atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+    delete:
+      tags: [Workspaces]
+      summary: Remove workspace
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      responses:
+        "204":
+          description: Workspace removido
+  /api/v1/subspaces:
+    post:
+      tags: [Subspaces]
+      summary: Cria subspace
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubspaceBody"
+      responses:
+        "200":
+          description: Subspace criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subspace"
+  /api/v1/subspaces/{id}:
+    patch:
+      tags: [Subspaces]
+      summary: Atualiza nome do subspace
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchNameBody"
+      responses:
+        "200":
+          description: Subspace atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subspace"
+    delete:
+      tags: [Subspaces]
+      summary: Remove subspace
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      responses:
+        "204":
+          description: Subspace removido
+  /api/v1/sections:
+    post:
+      tags: [Sections]
+      summary: Cria secao
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSectionBody"
+      responses:
+        "200":
+          description: Secao criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Section"
+  /api/v1/sections/{id}:
+    patch:
+      tags: [Sections]
+      summary: Atualiza nome da secao
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchNameBody"
+      responses:
+        "200":
+          description: Secao atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Section"
+    delete:
+      tags: [Sections]
+      summary: Remove secao
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      responses:
+        "204":
+          description: Secao removida
+  /api/v1/tasks:
+    post:
+      tags: [Tasks]
+      summary: Cria tarefa
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskBody"
+      responses:
+        "200":
+          description: Tarefa criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+  /api/v1/tasks/{id}:
+    patch:
+      tags: [Tasks]
+      summary: Atualiza tarefa parcialmente
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchTaskBody"
+      responses:
+        "200":
+          description: Tarefa atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      tags: [Tasks]
+      summary: Remove tarefa
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+      responses:
+        "204":
+          description: Tarefa removida
+components:
+  parameters:
+    EntityId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: ID da entidade
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    User:
+      type: object
+      required: [id, email]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+    AuthSuccessResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+    LoginBody:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    Workspace:
+      type: object
+      required: [id, name, userId, order, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        userId:
+          type: string
+        order:
+          type: number
+        createdAt:
+          type: number
+    Subspace:
+      type: object
+      required: [id, workspaceId, name, userId, order, createdAt]
+      properties:
+        id:
+          type: string
+        workspaceId:
+          type: string
+        name:
+          type: string
+        userId:
+          type: string
+        order:
+          type: number
+        createdAt:
+          type: number
+    Section:
+      type: object
+      required: [id, workspaceId, subspaceId, name, userId, order, createdAt]
+      properties:
+        id:
+          type: string
+        workspaceId:
+          type: string
+        subspaceId:
+          type: string
+        name:
+          type: string
+        userId:
+          type: string
+        order:
+          type: number
+        createdAt:
+          type: number
+    Task:
+      type: object
+      required:
+        [id, workspaceId, subspaceId, sectionId, title, status, tags, order, userId, createdAt]
+      properties:
+        id:
+          type: string
+        workspaceId:
+          type: string
+        subspaceId:
+          type: string
+        sectionId:
+          type: string
+        title:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        tags:
+          type: array
+          items:
+            type: string
+        assigneeName:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          nullable: true
+        order:
+          type: number
+        userId:
+          type: string
+        createdAt:
+          type: number
+    TaskStatus:
+      type: string
+      enum: [pending, in_progress, done]
+    CreateWorkspaceBody:
+      type: object
+      required: [name, order]
+      properties:
+        name:
+          type: string
+        order:
+          type: number
+    CreateSubspaceBody:
+      type: object
+      required: [workspaceId, name, order]
+      properties:
+        workspaceId:
+          type: string
+        name:
+          type: string
+        order:
+          type: number
+    CreateSectionBody:
+      type: object
+      required: [workspaceId, subspaceId, name, order]
+      properties:
+        workspaceId:
+          type: string
+        subspaceId:
+          type: string
+        name:
+          type: string
+        order:
+          type: number
+    CreateTaskBody:
+      type: object
+      required: [workspaceId, subspaceId, sectionId, title, status, tags, order]
+      properties:
+        workspaceId:
+          type: string
+        subspaceId:
+          type: string
+        sectionId:
+          type: string
+        title:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        tags:
+          type: array
+          items:
+            type: string
+        assigneeName:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          nullable: true
+        order:
+          type: number
+    PatchNameBody:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    PatchTaskBody:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        tags:
+          type: array
+          items:
+            type: string
+        assigneeName:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          nullable: true
+        order:
+          type: number
+        sectionId:
+          type: string
+        subspaceId:
+          type: string
+        workspaceId:
+          type: string
+    AppData:
+      type: object
+      required: [workspaces, subspaces, sections, tasks]
+      properties:
+        workspaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/Workspace"
+        subspaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subspace"
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
